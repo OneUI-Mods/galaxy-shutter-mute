@@ -17,7 +17,7 @@
         WRITE_SECURE_SETTINGS: Settings.Systemの保護されたキーに書き込むために必要
         通常はインストール後に Shizuku 経由で付与する
     -->
-    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" tools:ignore="ProtectedPermissions" />
 
     <application
         android:allowBackup="false"
