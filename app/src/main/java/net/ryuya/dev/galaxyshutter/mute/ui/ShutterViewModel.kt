@@ -14,8 +14,8 @@ import kotlinx.coroutines.launch
 import net.ryuya.dev.galaxyshutter.mute.settings.ShutterSettingsManager
 
 /**
- * シャッター音トグル画面の状態を管理する ViewModel
- * Manager アプリ側で WRITE_SECURE_SETTINGS を付与する設計となったため、ここではシステムネイティブで権限をチェックします。
+ * シャッター音トグル画面の状態を管理する ViewModel Manager アプリ側で WRITE_SECURE_SETTINGS
+ * を付与する設計となったため、ここではシステムネイティブで権限をチェックします。
  */
 class ShutterViewModel(private val context: Context) : ViewModel() {
 
@@ -33,52 +33,47 @@ class ShutterViewModel(private val context: Context) : ViewModel() {
         startPolling()
     }
 
-    /**
-     * ポーリングを開始する
-     * ループの先頭で毎回即チェックし、その後60秒待機して繰り返す
-     */
+    /** ポーリングを開始する ループの先頭で毎回即チェックし、その後60秒待機して繰り返す */
     fun startPolling() {
         pollingJob?.cancel()
         pollingJob = viewModelScope.launch {
             while (true) {
-                checkStatusAndLoad()  // 初回 or 再開時は即座にチェック
-                delay(60_000L)        // 60秒待機してから次のチェックへ
+                checkStatusAndLoad() // 初回 or 再開時は即座にチェック
+                delay(60_000L) // 60秒待機してから次のチェックへ
             }
         }
     }
 
-    /**
-     * WRITE_SECURE_SETTINGS 権限・現在のシャッター設定値を確認してUIに反映する
-     */
+    /** WRITE_SECURE_SETTINGS 権限・現在のシャッター設定値を確認してUIに反映する */
     fun checkStatusAndLoad() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            val permissionState = if (hasWriteSecureSettings()) {
-                PermissionState.Granted
-            } else {
-                PermissionState.WriteSecureSettingsDenied
-            }
+            val permissionState =
+                if (hasWriteSecureSettings()) {
+                    PermissionState.Granted
+                } else {
+                    PermissionState.WriteSecureSettingsDenied
+                }
 
-            val isSoundEnabled = if (permissionState == PermissionState.Granted) {
-                shutterManager.isShutterSoundEnabled()
-            } else {
-                null
-            }
+            val isSoundEnabled =
+                if (permissionState == PermissionState.Granted) {
+                    shutterManager.isShutterSoundEnabled()
+                } else {
+                    null
+                }
 
             _uiState.update {
                 it.copy(
                     permissionState = permissionState,
                     isShutterSoundEnabled = isSoundEnabled,
-                    isLoading = false
+                    isLoading = false,
                 )
             }
         }
     }
 
-    /**
-     * シャッター音のオン・オフを切り替える
-     */
+    /** シャッター音のオン・オフを切り替える */
     fun toggleShutterSound() {
         val current = _uiState.value.isShutterSoundEnabled ?: return
         val newValue = !current
@@ -88,12 +83,12 @@ class ShutterViewModel(private val context: Context) : ViewModel() {
         }
     }
 
-    /**
-     * このアプリに WRITE_SECURE_SETTINGS が付与されているかを確認する
-     */
+    /** このアプリに WRITE_SECURE_SETTINGS が付与されているかを確認する */
     private fun hasWriteSecureSettings(): Boolean {
-        return context.checkSelfPermission(android.Manifest.permission.WRITE_SECURE_SETTINGS) ==
-                PackageManager.PERMISSION_GRANTED
+        return androidx.core.content.ContextCompat.checkSelfPermission(
+            context,
+            android.Manifest.permission.WRITE_SECURE_SETTINGS,
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     override fun onCleared() {
@@ -111,18 +106,14 @@ class ShutterViewModel(private val context: Context) : ViewModel() {
     }
 }
 
-/**
- * シャッター画面の UI 全体状態を表すデータクラス
- */
+/** シャッター画面の UI 全体状態を表すデータクラス */
 data class ShutterUiState(
     val permissionState: PermissionState = PermissionState.Checking,
     val isShutterSoundEnabled: Boolean? = null,
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
 )
 
-/**
- * 権限の状態を表す sealed class
- */
+/** 権限の状態を表す sealed class */
 sealed class PermissionState {
     /** 確認中 */
     object Checking : PermissionState()
