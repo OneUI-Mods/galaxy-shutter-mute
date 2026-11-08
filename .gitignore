@@ -38,3 +38,8 @@ Thumbs.db
 
 # Android Studio
 .navigation/
+
+# Private distribution signing and generated release files
+.signing/
+dist/
+__pycache__/

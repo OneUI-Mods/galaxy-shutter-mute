@@ -6,18 +6,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.ui.platform.LocalContext
 import net.ryuya.dev.galaxyshutter.mute.ui.theme.GalaxyShutterMuteTheme
 
-/**
- * アプリのルート Composable
- * MaterialTheme でラップし、権限状態に応じて画面を切り替える
- * フォアグラウンド復帰時（ON_RESUME）に現在値を即時再取得する
- */
+/** アプリのルート Composable MaterialTheme でラップし、権限状態に応じて画面を切り替える フォアグラウンド復帰時（ON_RESUME）に現在値を即時再取得する */
 @Composable
 fun GalaxyShutterApp() {
     val context = LocalContext.current
@@ -29,11 +25,16 @@ fun GalaxyShutterApp() {
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.checkStatusAndLoad()
+                viewModel.startPolling()
+            } else if (event == Lifecycle.Event.ON_PAUSE) {
+                viewModel.stopPolling()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            viewModel.stopPolling()
+        }
     }
 
     GalaxyShutterMuteTheme {
@@ -43,21 +44,21 @@ fun GalaxyShutterApp() {
                 is PermissionState.Granted -> {
                     ShutterScreen(
                         uiState = uiState,
-                        onToggle = viewModel::toggleShutterSound
+                        onToggle = viewModel::toggleShutterSound,
                     )
                 }
                 // 権限確認中 → ローディングを表示（ShutterScreen内でカバー）
                 is PermissionState.Checking -> {
                     ShutterScreen(
                         uiState = uiState.copy(isLoading = true, isShutterSoundEnabled = null),
-                        onToggle = {}
+                        onToggle = {},
                     )
                 }
                 // 権限不足 → 権限案内画面を表示
                 else -> {
                     PermissionScreen(
                         permissionState = uiState.permissionState,
-                        onRetry = viewModel::checkStatusAndLoad
+                        onRetry = viewModel::checkStatusAndLoad,
                     )
                 }
             }

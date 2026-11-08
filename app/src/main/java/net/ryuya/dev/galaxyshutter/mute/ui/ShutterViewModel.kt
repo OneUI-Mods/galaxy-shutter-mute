@@ -17,9 +17,11 @@ import net.ryuya.dev.galaxyshutter.mute.settings.ShutterSettingsManager
  * シャッター音トグル画面の状態を管理する ViewModel Manager アプリ側で WRITE_SECURE_SETTINGS
  * を付与する設計となったため、ここではシステムネイティブで権限をチェックします。
  */
-class ShutterViewModel(private val context: Context) : ViewModel() {
+class ShutterViewModel(context: Context) : ViewModel() {
 
-    private val shutterManager = ShutterSettingsManager(context)
+    private val context = context.applicationContext
+
+    private val shutterManager = ShutterSettingsManager(this.context)
 
     /** 画面全体の UI 状態 */
     private val _uiState = MutableStateFlow(ShutterUiState())
@@ -27,11 +29,6 @@ class ShutterViewModel(private val context: Context) : ViewModel() {
 
     /** 定期ポーリング用 Job */
     private var pollingJob: Job? = null
-
-    init {
-        // 起動直後に即チェック＋1分ごとの定期ポーリングを開始
-        startPolling()
-    }
 
     /** ポーリングを開始する ループの先頭で毎回即チェックし、その後60秒待機して繰り返す */
     fun startPolling() {
@@ -42,6 +39,12 @@ class ShutterViewModel(private val context: Context) : ViewModel() {
                 delay(60_000L) // 60秒待機してから次のチェックへ
             }
         }
+    }
+
+    /** 画面が見えない間は監視を止め、復帰時は startPolling で即時に再取得する。 */
+    fun stopPolling() {
+        pollingJob?.cancel()
+        pollingJob = null
     }
 
     /** WRITE_SECURE_SETTINGS 権限・現在のシャッター設定値を確認してUIに反映する */
