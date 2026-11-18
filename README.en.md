@@ -1,5 +1,6 @@
 # Galaxy Shutter Mute
 
+<img src="design/launcher.svg" width="96" alt="App icon">
 [日本語](README.md) · English
 
 An app for changing Galaxy camera shutter-sound settings. Use [Galaxy Shutter Mute Manager](https://github.com/OneUI-Mods/galaxy-shutter-mute-manager) for installation and permission setup.
@@ -28,3 +29,5 @@ Build instructions, architecture, and verification are in the [developer guide (
 See [LICENSE](LICENSE) for the app's license and the in-app or bundled notices for dependencies. This is not an official Samsung app.
 
 [OneUI Mods app catalog](https://github.com/OneUI-Mods)
+
+[Build environment / ビルド環境](docs/build-environment.md)

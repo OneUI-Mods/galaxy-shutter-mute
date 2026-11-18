@@ -2,18 +2,19 @@
 // targetSdk=21 はGalaxy端末のシャッター設定キーにアクセスするために意図的に設定
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
 
 android {
     namespace = "net.ryuya.dev.galaxyshutter.mute"
-    compileSdk = 35
+    compileSdk {
+        version = release(37) { minorApiLevel = 2 }
+    }
 
     defaultConfig {
         applicationId = "net.ryuya.dev.galaxyshutter.mute"
         minSdk = 21
-        targetSdk = 21  // Galaxy端末のCSCキーへアクセスするため意図的に低く設定
+        targetSdk = 21 // Galaxy端末のCSCキーへアクセスするため意図的に低く設定
         versionCode = 3
         versionName = "1.1.1"
     }
@@ -23,7 +24,7 @@ android {
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -31,10 +32,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = "17"
     }
 
     buildFeatures {
@@ -63,3 +60,5 @@ dependencies {
 
     debugImplementation(libs.androidx.ui.tooling)
 }
+
+kotlin { compilerOptions { jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17 } }

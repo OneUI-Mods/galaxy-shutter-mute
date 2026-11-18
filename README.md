@@ -1,5 +1,6 @@
 # Galaxy Shutter Mute
 
+<img src="design/launcher.svg" width="96" alt="App icon">
 [日本語](README.md) · [English](README.en.md)
 
 Galaxyのカメラのシャッター音設定を切り替えるアプリです。導入・権限設定には[Galaxy Shutter Mute Manager](https://github.com/OneUI-Mods/galaxy-shutter-mute-manager)を使用します。
@@ -28,3 +29,5 @@ Samsung Galaxyの対応するシャッター音設定が利用できる環境向
 本体のライセンスは[LICENSE](LICENSE)、依存ライブラリの表記はアプリ内または同梱の第三者ライセンスを参照してください。Samsungの公式アプリではありません。
 
 [OneUI Modsのアプリ一覧](https://github.com/OneUI-Mods)
+
+[Build environment / ビルド環境](docs/build-environment.md)
